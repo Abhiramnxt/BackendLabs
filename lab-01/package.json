@@ -1,0 +1,19 @@
+{
+  "name": "lab-01",
+  "version": "1.0.0",
+  "description": "Lab 1: Node.js and Express server",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "lab-01"
+  ],
+  "author": "T Abhiram",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.3.0"
+  }
+}

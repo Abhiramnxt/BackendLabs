@@ -1,0 +1,28 @@
+{
+  "name": "lab-03",
+  "version": "1.0.0",
+  "description": "Lab 3: REST API, query parameters, validation, debugging",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "sqlite",
+    "rest-api",
+    "query-parameters",
+    "validation",
+    "lab-03"
+  ],
+  "author": "T Abhiram",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.3.0",
+    "nodemon": "^3.1.9",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^6.0.1"
+  }
+}
+
