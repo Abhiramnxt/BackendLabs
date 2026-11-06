@@ -4,6 +4,7 @@
 // Student: T Abhiram (252U1R1244) | Section: CSE-2E
 // ====================================================================
 
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const sqlite3 = require('sqlite3');
@@ -15,11 +16,27 @@ const app = express();
 // Middleware to parse incoming JSON request bodies
 app.use(express.json());
 
-// Set port from environment variable (for Render deployment) or default to 3000
+// Set port from environment variable (for Render/local) or default to 3000
 const PORT = process.env.PORT || 3000;
 
 // Resolve path to the SQLite database file
-const dbPath = path.join(__dirname, 'database', 'books.db');
+// On Vercel, the bundled deployment directory is read-only.
+// We copy books.db to /tmp/books.db so SQLite can write (POST/PUT/DELETE) as well as read.
+let dbPath = path.join(__dirname, 'database', 'books.db');
+
+if (process.env.VERCEL) {
+    const tmpDbPath = path.join('/tmp', 'books.db');
+    try {
+        if (!fs.existsSync(tmpDbPath) && fs.existsSync(dbPath)) {
+            fs.copyFileSync(dbPath, tmpDbPath);
+        }
+        if (fs.existsSync(tmpDbPath)) {
+            dbPath = tmpDbPath;
+        }
+    } catch (err) {
+        console.warn('Vercel /tmp copy warning:', err.message);
+    }
+}
 
 // Declare database variable in outer scope
 let db = null;
@@ -30,63 +47,78 @@ const allowedOrderColumns = ['id', 'title', 'author', 'price', 'pages'];
 // Whitelist of allowed sort directions
 const allowedOrderDirections = ['ASC', 'DESC'];
 
-// Function to initialize SQLite database and start the server
-const initializeDBAndServer = async () => {
-    try {
-        // Open the SQLite database connection
-        db = await open({
-            filename: dbPath,
-            driver: sqlite3.Database
-        });
+// Function to initialize SQLite database connection and seed if needed
+const initializeDB = async () => {
+    if (db) return db;
 
-        // Create the 'book' table if it doesn't already exist
-        await db.run(`
-            CREATE TABLE IF NOT EXISTS book (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT,
-                author TEXT,
-                price INTEGER,
-                pages INTEGER
-            )
-        `);
+    // Open the SQLite database connection
+    db = await open({
+        filename: dbPath,
+        driver: sqlite3.Database
+    });
 
-        // Insert 10 realistic sample books if the table is empty
-        const countResult = await db.get(`SELECT COUNT(*) AS count FROM book;`);
-        if (countResult.count === 0) {
-            const initialBooks = [
-                ['The Alchemist', 'Paulo Coelho', 350, 208],
-                ['Atomic Habits', 'James Clear', 450, 320],
-                ['Clean Code', 'Robert C. Martin', 650, 464],
-                ['To Kill a Mockingbird', 'Harper Lee', 399, 281],
-                ['1984', 'George Orwell', 299, 328],
-                ['The Great Gatsby', 'F. Scott Fitzgerald', 250, 180],
-                ['Rich Dad Poor Dad', 'Robert T. Kiyosaki', 399, 336],
-                ['Harry Potter and the Sorcerer Stone', 'J.K. Rowling', 499, 309],
-                ['The Pragmatic Programmer', 'Andrew Hunt', 750, 352],
-                ['Deep Work', 'Cal Newport', 420, 304]
-            ];
+    // Create the 'book' table if it doesn't already exist
+    await db.run(`
+        CREATE TABLE IF NOT EXISTS book (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            author TEXT,
+            price INTEGER,
+            pages INTEGER
+        )
+    `);
 
-            for (const book of initialBooks) {
-                await db.run(
-                    `INSERT INTO book (title, author, price, pages) VALUES (?, ?, ?, ?);`,
-                    book
-                );
-            }
-            console.log('Database initialized with 10 sample books.');
+    // Insert 10 realistic sample books if the table is empty
+    const countResult = await db.get(`SELECT COUNT(*) AS count FROM book;`);
+    if (countResult.count === 0) {
+        const initialBooks = [
+            ['The Alchemist', 'Paulo Coelho', 350, 208],
+            ['Atomic Habits', 'James Clear', 450, 320],
+            ['Clean Code', 'Robert C. Martin', 650, 464],
+            ['To Kill a Mockingbird', 'Harper Lee', 399, 281],
+            ['1984', 'George Orwell', 299, 328],
+            ['The Great Gatsby', 'F. Scott Fitzgerald', 250, 180],
+            ['Rich Dad Poor Dad', 'Robert T. Kiyosaki', 399, 336],
+            ['Harry Potter and the Sorcerer Stone', 'J.K. Rowling', 499, 309],
+            ['The Pragmatic Programmer', 'Andrew Hunt', 750, 352],
+            ['Deep Work', 'Cal Newport', 420, 304]
+        ];
+
+        for (const book of initialBooks) {
+            await db.run(
+                `INSERT INTO book (title, author, price, pages) VALUES (?, ?, ?, ?);`,
+                book
+            );
         }
-
-        // Start listening only after the database connection is established
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-        });
-    } catch (error) {
-        console.log(`DB Error: ${error.message}`);
-        process.exit(1);
+        console.log('Database initialized with 10 sample books.');
     }
+
+    return db;
 };
 
-// Start the database and server
-initializeDBAndServer();
+// Middleware to ensure database is connected before handling any incoming request (crucial for Vercel serverless)
+app.use(async (req, res, next) => {
+    try {
+        if (!db) {
+            await initializeDB();
+        }
+        next();
+    } catch (error) {
+        console.error('DB Initialization Error:', error.message);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Root Route - Welcome message
+app.get('/', (req, res) => {
+    res.status(200).json({
+        message: 'Welcome to Lab 3 REST API with SQLite',
+        endpoints: {
+            books: '/books',
+            singleBook: '/books/:bookId'
+        }
+    });
+});
 
 // ====================================================================
 // RESTful CRUD ROUTES WITH QUERY PARAMETERS & VALIDATION
@@ -364,3 +396,19 @@ app.delete('/books/:bookId', async (req, res) => {
     }
 });
 
+// Start local server if not running inside Vercel's serverless environment
+if (!process.env.VERCEL) {
+    initializeDB()
+        .then(() => {
+            app.listen(PORT, () => {
+                console.log(`Server running on port ${PORT}`);
+            });
+        })
+        .catch((error) => {
+            console.log(`DB Error: ${error.message}`);
+            process.exit(1);
+        });
+}
+
+// Export Express app for Vercel deployment
+module.exports = app;

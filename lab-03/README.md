@@ -37,14 +37,14 @@
 
 ## Live Link
 
-| Deployment Platform | Live URL | Status |
+| Deployment Platform | Status | URL |
 |:---|:---|:---|
-| **Render** | [Add deployed URL after deployment] | Pending Deployment |
+| **Vercel** | Pending Deployment | Live URL: Add after Vercel deployment |
 
 ---
 
 ## Objective
-The objective of this lab is to enhance the SQLite book API developed in Lab 2 by implementing robust RESTful API design principles. This includes adding support for query parameters for partial text searching (`LIKE`), column sorting (whitelist-protected `ORDER BY`), price range filtering (`min_price` and `max_price`), and pagination (`limit` and `offset`). It also focuses on rigorous request body and query parameter validation, standardizing JSON error messages, utilizing appropriate HTTP status codes (200, 201, 400, 404), and learning essential backend debugging techniques.
+The objective of this lab is to enhance the SQLite book API developed in Lab 2 by implementing robust RESTful API design principles. This includes adding support for query parameters for partial text searching (`LIKE`), column sorting (whitelist-protected `ORDER BY`), price range filtering (`min_price` and `max_price`), and pagination (`limit` and `offset`). It also focuses on request body and query parameter validation, standardizing JSON error messages, utilizing appropriate HTTP status codes (200, 201, 400, 404), preparing the application for **Vercel zero-config serverless deployment**, and practicing backend debugging techniques.
 
 ---
 
@@ -52,12 +52,13 @@ The objective of this lab is to enhance the SQLite book API developed in Lab 2 b
 
 | Technology | Purpose |
 |:---|:---|
-| **Node.js** | Server-side JavaScript runtime environment |
+| **Node.js** | Server-side JavaScript runtime environment (Node 24.x) |
 | **Express.js** | Web application framework for HTTP routing and middleware |
 | **SQLite** | Lightweight, zero-configuration relational database engine |
 | **sqlite3** | Core Node.js SQLite driver |
 | **sqlite** | Promise-based wrapper enabling `async`/`await` database calls |
 | **Nodemon** | Development tool that automatically restarts the server on code changes |
+| **Vercel** | Cloud platform for serverless and zero-config web deployment |
 | **Postman** | API testing client used to send HTTP requests with query parameters and body payloads |
 
 ---
@@ -67,11 +68,11 @@ The objective of this lab is to enhance the SQLite book API developed in Lab 2 b
 ```text
 lab-03/
 │
-├── app.js               # REST API server with query parameters, validation, and CRUD
-├── package.json         # Project metadata, scripts, and dependencies
+├── app.js               # REST API server (Vercel-compatible export + local listen)
+├── package.json         # Project metadata, scripts, engines (Node 24.x) & dependencies
 ├── package-lock.json    # Exact dependency tree lockfile
 ├── .gitignore           # Ignores node_modules/ and .env (tracks database/books.db)
-├── README.md            # Comprehensive documentation, debugging guide, and viva Q&A
+├── README.md            # Comprehensive documentation, Vercel guide & viva Q&A
 ├── database/
 │   └── books.db         # Persistent SQLite database file storing the book table
 └── screenshots/
@@ -80,31 +81,32 @@ lab-03/
 
 ---
 
-## Installation
+## How to Run Locally
 
-1. Navigate to the `lab-03` folder:
+1. Open your terminal and navigate to `lab-03`:
    ```bash
    cd lab-03
    ```
 
-2. Install dependencies:
+2. Install dependencies (if not already installed):
    ```bash
    npm install
    ```
 
----
+3. Start the application:
+   - **Development mode (with auto-reload using Nodemon):**
+     ```bash
+     npm run dev
+     ```
+   - **Standard mode:**
+     ```bash
+     npm start
+     ```
 
-## Run
-
-| Mode | Command | Description |
-|:---|:---|:---|
-| **Development** | `npm run dev` | Runs with **Nodemon** (auto-restart on file save) |
-| **Standard / Production** | `npm start` *(or `node app.js`)* | Runs with standard **Node.js** |
-
-Server runs locally on:
-```text
-http://localhost:3000
-```
+4. The server runs locally on:
+   ```text
+   http://localhost:3000
+   ```
 
 ---
 
@@ -112,6 +114,7 @@ http://localhost:3000
 
 | Method | Endpoint | Description | Status Code |
 |:---:|:---|:---|:---:|
+| **GET** | `/` | API status and route directory | `200 OK` |
 | **GET** | `/books` | Retrieve books with optional search, filter, sort, and pagination | `200 OK` / `400 Bad Request` |
 | **GET** | `/books/:bookId` | Retrieve a single book by ID | `200 OK` / `404 Not Found` |
 | **POST** | `/books` | Create a new book with input validation | `201 Created` / `400 Bad Request` |
@@ -138,6 +141,60 @@ Every query parameter has a sensible default. The API supports:
 ```text
 GET /books?search_q=the&order_by=price&order=ASC&limit=5&offset=0
 ```
+
+---
+
+## POST, PUT, and DELETE Examples
+
+### 1. POST `/books` (Add Book)
+- **Method:** `POST`
+- **Headers:** `Content-Type: application/json`
+- **Request Body:**
+  ```json
+  {
+    "title": "Clean Architecture",
+    "author": "Robert C. Martin",
+    "price": 550,
+    "pages": 432
+  }
+  ```
+- **Response (HTTP 201 Created):**
+  ```json
+  {
+    "message": "Book added successfully",
+    "bookId": 11
+  }
+  ```
+
+### 2. PUT `/books/:bookId` (Update Book)
+- **Method:** `PUT`
+- **URL:** `/books/1`
+- **Headers:** `Content-Type: application/json`
+- **Request Body:**
+  ```json
+  {
+    "title": "The Alchemist (25th Anniversary Edition)",
+    "author": "Paulo Coelho",
+    "price": 450,
+    "pages": 208
+  }
+  ```
+- **Response (HTTP 200 OK):**
+  ```json
+  {
+    "message": "Book updated successfully"
+  }
+  ```
+
+### 3. DELETE `/books/:bookId` (Delete Book)
+- **Method:** `DELETE`
+- **URL:** `/books/1`
+- **Response (HTTP 200 OK):**
+  ```json
+  {
+    "message": "Book deleted successfully"
+  }
+  ```
 
 ---
 
@@ -174,47 +231,54 @@ GET /books?search_q=the&order_by=price&order=ASC&limit=5&offset=0
 
 ---
 
-## Postman Testing
+## How to Deploy to Vercel
 
-### Success Tests
-1. `GET http://localhost:3000/books` (All books)
-2. `GET http://localhost:3000/books?search_q=harry` (Search by title)
-3. `GET http://localhost:3000/books?order_by=price&order=DESC` (Sort by highest price)
-4. `GET http://localhost:3000/books?limit=5&offset=0` (Pagination)
-5. `GET http://localhost:3000/books?min_price=200&max_price=500` (Price range filter)
-6. `GET http://localhost:3000/books?search_q=the&order_by=price&order=ASC&limit=5&offset=0` (Combined query)
-7. `GET http://localhost:3000/books/1` (Single book)
-8. `POST http://localhost:3000/books` with body:
-   ```json
-   {
-     "title": "New Book",
-     "author": "New Author",
-     "price": 400,
-     "pages": 300
-   }
+Vercel supports Express.js applications with **zero configuration** when the app is properly exported (`module.exports = app`) and root directory is selected.
+
+### Step-by-Step Instructions:
+
+1. **Push your code to GitHub:**
+   ```bash
+   git add lab-03/
+   git commit -m "Configure lab-03 for Vercel deployment"
+   git push origin main
    ```
-9. `PUT http://localhost:3000/books/1` with body:
-   ```json
-   {
-     "title": "Updated Book",
-     "author": "Updated Author",
-     "price": 500,
-     "pages": 350
-   }
-   ```
-10. `DELETE http://localhost:3000/books/1`
 
-### Failure & Validation Tests
-11. `GET http://localhost:3000/books/999` &rarr; Status `404 Not Found`
-12. `POST http://localhost:3000/books` without `title` &rarr; Status `400 Bad Request`
-13. `POST http://localhost:3000/books` without `author` &rarr; Status `400 Bad Request`
-14. `POST http://localhost:3000/books` with `"price": "abc"` &rarr; Status `400 Bad Request`
-15. `GET http://localhost:3000/books?order=INVALID` &rarr; Status `400 Bad Request`
-16. `GET http://localhost:3000/books?order_by=invalid` &rarr; Status `400 Bad Request`
-17. `GET http://localhost:3000/books?limit=abc` &rarr; Status `400 Bad Request`
-18. `GET http://localhost:3000/books?min_price=abc` &rarr; Status `400 Bad Request`
+2. **Open Vercel:**
+   - Go to [vercel.com](https://vercel.com) and log in with your GitHub account.
+   - Click **Add New...** &rarr; **Project**.
 
-### Screenshot Previews
+3. **Import Your Repository:**
+   - Select your **`BackendLabs`** repository.
+
+4. **Configure Project Settings:**
+   - **Framework Preset:** Select **Other** (or leave as auto-detected).
+   - **Root Directory:** Click **Edit** and choose **`lab-03`**.
+   - **Build Command:** Leave default (`npm run build` or empty).
+   - **Install Command:** Leave default (`npm install`).
+   - **Output Directory:** Leave default.
+
+5. **Deploy:**
+   - Click **Deploy**.
+   - Vercel will install dependencies, recognize `app.js` as the Express serverless function entrypoint, and deploy the project.
+
+6. **Test Live Endpoints:**
+   - `https://your-project.vercel.app/`
+   - `https://your-project.vercel.app/books`
+   - `https://your-project.vercel.app/books/1`
+   - `https://your-project.vercel.app/books?search_q=harry`
+   - `https://your-project.vercel.app/books?order_by=price&order=DESC`
+
+7. **Update Live URL:**
+   - Copy your assigned Vercel URL and paste it under the `## Live Link` table above!
+
+> [!NOTE]
+> **SQLite on Vercel Serverless:**  
+> Vercel executes code in a serverless, read-only filesystem environment. Our `app.js` automatically copies `database/books.db` into Vercel's writable `/tmp` directory during cold starts, allowing both read operations (`GET`) and write operations (`POST`, `PUT`, `DELETE`). Like all serverless hosting, changes in `/tmp` are ephemeral and will reset when serverless container instances recycle.
+
+---
+
+## Postman Testing Placeholders
 
 ![Get Books](screenshots/get-books.png)
 
@@ -241,66 +305,31 @@ GET /books?search_q=the&order_by=price&order=ASC&limit=5&offset=0
 ## Debugging Practice
 
 ### 1. `EADDRINUSE` (Address / Port in Use)
-- **Explanation:** Another process (often a previous running instance of Node or Nodemon) is already bound to port 3000.
-- **How to debug:**
-  - Press `Ctrl + C` in the existing terminal to terminate the previous process.
-  - In Windows PowerShell, find and kill the process:
-    ```powershell
-    Get-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess | Stop-Process -Force
-    ```
-  - Or run on an alternative port: `PORT=4000 npm start`.
+- **Explanation:** Another process is already bound to port 3000.
+- **Fix:** Terminate previous process with `Ctrl + C` or change port: `PORT=4000 npm start`.
 
 ### 2. Wrong Import Path (`Cannot find module ...`)
 - **Explanation:** Node cannot locate the required file or installed package.
-- **How to debug:**
-  - Check the exact relative path (e.g., `./database/books.db` vs `database/books.db`).
-  - Verify package installation in `package.json` (`npm install package-name`).
-  - Check spelling and case sensitivity (Node modules are case-sensitive on Linux/macOS).
+- **Fix:** Check relative file paths (`./database/books.db`) and ensure `npm install` was run.
 
 ### 3. SQLite Table-Name Typo (`SQLITE_ERROR: no such table: books`)
-- **Explanation:** The database query references a plural table name `books`, whereas the table was defined as singular `book`.
-- **How to debug:**
-  - Run `sqlite3 database/books.db` followed by `.tables` to inspect the exact schema table names.
-  - Match your SQL queries to the exact table identifier: `SELECT * FROM book;`.
+- **Explanation:** Querying `books` (plural) instead of `book` (singular).
+- **Fix:** Ensure all queries reference the singular table name: `SELECT * FROM book;`.
 
 ### 4. Missing `await` in Database Calls
-- **Explanation:** Database calls are asynchronous and return Promises. Omitting `await` causes the function to return a pending Promise instead of actual data, resulting in empty responses or undefined variables.
-- **Example Bug:**
-  ```javascript
-  // BUG: Missing await returns a Promise object instead of the book array
-  const books = db.all("SELECT * FROM book;");
-  res.json(books); // Sends empty Promise {}
-  ```
-- **Correction:**
-  ```javascript
-  // FIXED: await resolves the Promise to the actual query results
-  const books = await db.all("SELECT * FROM book;");
-  res.json(books);
-  ```
+- **Explanation:** Omitting `await` returns an unresolved Promise object `{}` instead of the data.
+- **Fix:** Always write `const books = await db.all("SELECT * FROM book;");`.
 
 ---
 
 ## SQL Injection Protection
 
 ### Why Parameterized Queries are Essential
-User input must never be interpolated directly into SQL statements.
-- **Dangerous:**
-  ```javascript
-  // VULNERABLE TO SQL INJECTION
-  const query = `SELECT * FROM book WHERE title LIKE '%${search_q}%';`;
-  ```
-  If an attacker sends `search_q = "' OR 1=1 --"`, they can bypass filters or manipulate the query logic.
-
-- **Safe (Parameterized):**
-  ```javascript
-  // SECURE: Parameterized Query
-  const query = `SELECT * FROM book WHERE title LIKE ?;`;
-  await db.all(query, [`%${search_q}%`]);
-  ```
-  With `?` placeholders, the SQLite engine treats the value strictly as literal string data. It is never parsed as executable SQL code.
-
-### Whitelist for Identifiers
-SQL column names and sort directions (`order_by`, `order`) cannot be parameterized with `?`. Therefore, we protect them using an explicit whitelist array (`allowedOrderColumns = ['id', 'title', 'author', 'price', 'pages']`). Any value not in the whitelist is rejected with HTTP 400.
+- **Vulnerable:** `const query = "SELECT * FROM book WHERE title LIKE '%" + search_q + "%'";`  
+  *Allows attackers to inject malicious SQL commands.*
+- **Secure (Parameterized):** `const query = "SELECT * FROM book WHERE title LIKE ?;";` with `[`%${search_q}%`]`  
+  *Ensures input is strictly treated as string data, never as executable code.*
+- **Whitelist Protection:** Dynamic column names and order directions cannot be parameterized with `?`. We validate them against strict whitelist arrays (`allowedOrderColumns`, `allowedOrderDirections`) before query execution.
 
 ---
 
@@ -308,9 +337,9 @@ SQL column names and sort directions (`order_by`, `order`) cannot be parameteriz
 
 | Possible Issue | Cause | Solution |
 |:---|:---|:---|
+| **Vercel Read-Only Filesystem error** | Vercel's root directory is read-only in serverless mode. | Automatically copied `database/books.db` to `/tmp/books.db` when `process.env.VERCEL` is detected. |
 | **Invalid `order_by` injection attempt** | User submitted a column that doesn't exist or SQL fragment. | Implemented whitelist validation check; rejected non-whitelisted columns with HTTP 400. |
 | **Numeric price filter failing** | User submitted alphabetical string in `min_price`. | Used `isNaN()` validation to reject invalid price inputs before query generation. |
-| **Nodemon crashing on syntax error** | Typos in route declarations or missing brackets. | Check terminal stack trace line numbers and fix syntax; Nodemon reloads automatically. |
 
 ---
 
@@ -322,38 +351,14 @@ SQL column names and sort directions (`order_by`, `order`) cannot be parameteriz
 | **2** | **What is a path parameter?** | A dynamic URL segment prefixed with `:` (e.g., `/books/:bookId`) used to identify a specific single resource. |
 | **3** | **Difference between query and path parameter?** | Path parameters identify a specific resource (`/books/5`). Query parameters filter, sort, or paginate a list of resources (`/books?price=300`). |
 | **4** | **What does REST API mean?** | Representational State Transfer — an architectural style that uses HTTP methods (GET, POST, PUT, DELETE) on resource nouns (`/books`). |
-| **5** | **What does stateless mean?** | The server does not store client session state between requests; every HTTP request must contain all the information necessary to process it. |
-| **6** | **Which status code is used for bad input?** | `400 Bad Request` — signals that the client provided missing or invalid data. |
+| **5** | **What does stateless mean?** | The server does not store client session state between requests; every HTTP request must contain all information needed to process it. |
+| **6** | **Which status code is used for bad input?** | `400 Bad Request` — signals that the client provided missing or malformed input. |
 | **7** | **Which status code is used when a record does not exist?** | `404 Not Found` — indicates the requested resource ID was not found in the database. |
-| **8** | **Why do we use 201 after POST?** | HTTP 201 means "Created", confirming that a new database record was successfully created. |
-| **9** | **Why do we use 404?** | To clearly communicate to the client that the server is working, but the requested endpoint or resource ID doesn't exist. |
-| **10** | **What is SQL injection?** | An attack where malicious SQL statements are injected into input fields to manipulate or corrupt the database. |
-| **11** | **How do parameterized queries prevent SQL injection?** | They separate code from data. The query structure is compiled first, and the placeholder (`?`) values are treated strictly as data literals. |
-| **12** | **Why do we validate user input?** | To prevent runtime crashes, reject malformed data, and protect against security vulnerabilities like SQL injection. |
-| **13** | **Why do we use a whitelist for `order_by`?** | SQL column names cannot be passed as `?` parameters in SQLite, so a whitelist ensures only authorized, existing column names can be used. |
+| **8** | **Why do we use 201 after POST?** | HTTP 201 stands for "Created", confirming that a new row was successfully added to the database. |
+| **9** | **Why do we use 404?** | To explicitly inform the client that the server is working, but the requested endpoint or resource does not exist. |
+| **10** | **What is SQL injection?** | A security attack where untrusted user input contains malicious SQL statements that execute and tamper with the database. |
+| **11** | **How do parameterized queries prevent SQL injection?** | The query structure is compiled first, and the placeholder (`?`) values are treated strictly as literal data, never as executable SQL code. |
+| **12** | **Why do we validate user input?** | To reject malformed data, prevent application crashes, and protect against security vulnerabilities. |
+| **13** | **Why do we use a whitelist for `order_by`?** | SQL column names cannot be passed as `?` parameters in SQLite, so a whitelist guarantees that only valid, existing column names are used. |
 | **14** | **What does `req.query` contain?** | An object containing URL query parameters after the `?` mark (e.g., `req.query.search_q`). |
 | **15** | **What does `req.params` contain?** | An object containing route path parameters (e.g., `req.params.bookId`). |
-
----
-
-## Deployment on Render
-
-### Steps:
-1. Commit and push `lab-03` to your GitHub repository.
-2. In [Render Dashboard](https://dashboard.render.com/), create a **New Web Service**.
-3. Select your repository.
-4. Configure service settings:
-   - **Root Directory:** `lab-03`
-   - **Build Command:** `npm install`
-   - **Start Command:** `npm start`
-   - **Environment:** `Node`
-5. Click **Deploy Web Service**.
-6. When deployment finishes, test:
-   - `https://your-service.onrender.com/books`
-   - `https://your-service.onrender.com/books/1`
-   - `https://your-service.onrender.com/books?search_q=the`
-   - `https://your-service.onrender.com/books?order_by=price&order=DESC`
-
-### ⚠️ Ephemeral Storage Note:
-Render free tier uses an **ephemeral filesystem**. Any new books added or modified will revert to the committed Git state whenever the free service goes to sleep or redeploys.
-
