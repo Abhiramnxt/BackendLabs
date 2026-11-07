@@ -1,4 +1,4 @@
-# Lab 2: SQLite database and CRUD routes
+# Lab 2: SQLite Database and CRUD Routes
 
 ## Student Details
 
@@ -23,8 +23,12 @@
       <td>CSE-2E</td>
     </tr>
     <tr>
+      <td><b>Course</b></td>
+      <td>Backend Development Fundamentals – Year II Term II</td>
+    </tr>
+    <tr>
       <td><b>Lab Title</b></td>
-      <td>Lab 2: SQLite database and CRUD routes</td>
+      <td>Lab 2: SQLite Database and CRUD Routes</td>
     </tr>
     <tr>
       <td><b>Module</b></td>
@@ -203,17 +207,23 @@ All five routes and edge cases are tested in Postman using the following request
 
 ### Screenshot Previews
 
-![Get All Books](screenshots/get-all-books.png)
+![01-get-all-books](screenshots/01-get-all-books.png)
 
-![Get One Book](screenshots/get-one-book.png)
+![02-get-one-book](screenshots/02-get-one-book.png)
 
-![Add Book](screenshots/add-book.png)
+![03-post-book](screenshots/03-post-book.png)
 
-![Update Book](screenshots/update-book.png)
+![04-put-book](screenshots/04-put-book.png)
 
-![Delete Book](screenshots/delete-book.png)
+![05-delete-book](screenshots/05-delete-book.png)
 
-![Book Not Found](screenshots/book-not-found.png)
+![06-404-error](screenshots/06-404-error.png)
+
+![07-sqlite-inserted-records](screenshots/07-sqlite-inserted-records.png)
+
+![08-sqlite-updated-records](screenshots/08-sqlite-updated-records.png)
+
+![09-sqlite-deleted-records](screenshots/09-sqlite-deleted-records.png)
 
 ---
 

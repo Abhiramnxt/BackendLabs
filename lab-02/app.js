@@ -1,6 +1,6 @@
 // ====================================================================
-// Lab 2: SQLite database and CRUD routes
-// Module: SQLite and relational database operations
+// Lab 2: SQLite Database and CRUD Routes
+// Course: Backend Development Fundamentals – Year II Term II
 // Student: Abhiram Thunikipati (252U1R1244) | Section: CSE-2E
 // ====================================================================
 
@@ -55,7 +55,7 @@ const initializeDBAndServer = async () => {
                 ['1984', 'George Orwell', 299, 328],
                 ['The Great Gatsby', 'F. Scott Fitzgerald', 250, 180],
                 ['Rich Dad Poor Dad', 'Robert T. Kiyosaki', 399, 336],
-                ['Harry Potter and the Sorcerer Stone', 'J.K. Rowling', 499, 309],
+                ['Harry Potter and the Sorcerer\'s Stone', 'J.K. Rowling', 499, 309],
                 ['The Pragmatic Programmer', 'Andrew Hunt', 750, 352],
                 ['Deep Work', 'Cal Newport', 420, 304]
             ];
