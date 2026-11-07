@@ -4,7 +4,7 @@
 
 | Field | Details |
 |---|---|
-| **Student Name** | T Abhiram |
+| **Student Name** | Abhiram Thunikipati |
 | **Registration Number** | 252U1R1244 |
 | **Section** | CSE-2E |
 | **Lab Title** | Lab 1: Node.js and Express server |
@@ -51,8 +51,8 @@ The objective of this lab is to learn the fundamentals of backend web developmen
 
 | Method | Path | Description | Status Code | Expected Response |
 |---|---|---|---|---|
-| **GET** | `/` | Welcome message | `200 OK` | `Welcome to Lab 1 Node.js and Express Server` |
-| **GET** | `/about` | Returns student details as JSON | `200 OK` | `{"name":"T Abhiram","registrationNumber":"252U1R1244","section":"CSE-2E"}` |
+| **GET** | `/` | Welcome message and student details as JSON | `200 OK` | `{"message":"Welcome to the Backend Development Fundamentals Lab 1!","student":"Abhiram Thunikipati","registrationNumber":"252U1R1244","lab":"Lab 1 - Node.js and Express Server"}` |
+| **GET** | `/about` | Returns student details as JSON | `200 OK` | `{"name":"Abhiram Thunikipati","registrationNumber":"252U1R1244","section":"CSE-2E"}` |
 | **GET** | `/time` | Returns current date and time as JSON | `200 OK` | `{"currentTime":"..."}` |
 | **GET** | `/unknown` | Fallback for any undefined path | `404 Not Found` | `{"error":"Page not found"}` |
 
@@ -90,7 +90,7 @@ The objective of this lab is to learn the fundamentals of backend web developmen
 | **`main`** | Primary entry point of the server application | `"app.js"` |
 | **`scripts`** | Script commands executable via `npm run <script>` or `npm start` | `"start": "node app.js"` |
 | **`keywords`** | Array of search tags and descriptive keywords | `["nodejs", "express", "lab-01"]` |
-| **`author`** | Developer name | `"T Abhiram"` |
+| **`author`** | Developer name | `"Abhiram Thunikipati"` |
 | **`license`** | Legal open-source license | `"ISC"` |
 | **`dependencies`** | External production libraries installed via npm | `"express": "^5.3.0"` |
 

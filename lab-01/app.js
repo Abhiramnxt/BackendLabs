@@ -38,10 +38,15 @@ app.use((req, res, next) => {
 });
 
 // TASK 5 - Route 1: GET /
-// Returns a simple welcome message with status code 200
+// Returns welcome message and student details with status code 200
 app.get('/', (req, res) => {
     console.log(`[RESPONSE] Status: 200 OK for /`);
-    res.status(200).send('Welcome to Lab 1 Node.js and Express Server');
+    res.status(200).json({
+        message: "Welcome to the Backend Development Fundamentals Lab 1!",
+        student: "Abhiram Thunikipati",
+        registrationNumber: "252U1R1244",
+        lab: "Lab 1 - Node.js and Express Server"
+    });
 });
 
 // TASK 5 - Route 2: GET /about
@@ -49,7 +54,7 @@ app.get('/', (req, res) => {
 app.get('/about', (req, res) => {
     console.log(`[RESPONSE] Status: 200 OK for /about`);
     res.status(200).json({
-        name: 'T Abhiram',
+        name: 'Abhiram Thunikipati',
         registrationNumber: '252U1R1244',
         section: 'CSE-2E'
     });
