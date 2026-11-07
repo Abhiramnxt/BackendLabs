@@ -15,7 +15,7 @@
     "crud",
     "lab-02"
   ],
-  "author": "T Abhiram",
+  "author": "Abhiram Thunikipati",
   "license": "ISC",
   "dependencies": {
     "express": "^5.3.0",

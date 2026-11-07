@@ -1,7 +1,7 @@
 // ====================================================================
 // Lab 2: SQLite database and CRUD routes
 // Module: SQLite and relational database operations
-// Student: T Abhiram (252U1R1244) | Section: CSE-2E
+// Student: Abhiram Thunikipati (252U1R1244) | Section: CSE-2E
 // ====================================================================
 
 const path = require('path');

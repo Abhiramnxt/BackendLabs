@@ -12,7 +12,7 @@
   <tbody>
     <tr>
       <td><b>Student Name</b></td>
-      <td>T Abhiram</td>
+      <td>Abhiram Thunikipati</td>
     </tr>
     <tr>
       <td><b>Registration Number</b></td>
@@ -323,6 +323,9 @@ The database driver treats the values passed in parameters strictly as literal d
    - `PUT /books/1/`
    - `DELETE /books/1/`
 
-### ⚠️ Important Note on SQLite with Cloud Hosting (Ephemeral Filesystem)
-Free cloud hosting platforms (such as Render, Heroku, or Vercel) use **ephemeral filesystems**. This means any changes made to `database/books.db` at runtime (such as newly added, updated, or deleted books) will reset back to the initial Git commit state whenever the service restarts, redeploys, or goes to sleep. For long-term production persistence, an external database (e.g., PostgreSQL) or a persistent disk volume is recommended.
+### ⚠️ Important Note on SQLite with Render Free Services (Ephemeral Filesystem)
+Render Free web services run on containers with an **ephemeral filesystem**. This means:
+- Any changes made to the SQLite database during runtime (such as adding, updating, or deleting books) will not be permanently preserved across server restarts, redeployments, or when the free service spins down due to inactivity.
+- On each fresh start, the database resets to the committed Git state (or re-initializes with the 10 sample books).
+- For the college lab requirement, the local SQLite database file `database/books.db` is maintained and committed so that sample data is always available upon launch.
 
