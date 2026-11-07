@@ -124,10 +124,18 @@ app.use(async (req, res, next) => {
 
 app.get('/', (req, res) => {
     res.status(200).json({
-        message: 'Welcome to Lab 3 REST API with SQLite',
+        message: "Welcome to Backend Development Fundamentals - Lab 3 (REST API, Query Parameters, Validation & Debugging)",
+        student: "Abhiram Thunikipati",
+        registrationNumber: "252U1R1244",
+        section: "CSE-2E 211",
+        college: "Aurora Deemed-to-be-University",
+        faculty: "Mr Yugandhar Gurjalwar",
         endpoints: {
-            books: '/books',
-            singleBook: '/books/:bookId'
+            listBooksWithFilters: "GET /books/?search_q=&order_by=id&order=ASC&limit=10&offset=0&min_price=&max_price=",
+            getSingleBook: "GET /books/:bookId/",
+            addBook: "POST /books/",
+            updateBook: "PUT /books/:bookId/",
+            deleteBook: "DELETE /books/:bookId/"
         }
     });
 });
