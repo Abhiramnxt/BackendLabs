@@ -83,6 +83,27 @@ const initializeDBAndServer = async () => {
 initializeDBAndServer();
 
 // ====================================================================
+// ROOT WELCOME ROUTE
+// ====================================================================
+
+app.get('/', (req, res) => {
+    res.status(200).json({
+        message: "Welcome to Backend Development Fundamentals - Lab 2 (SQLite Database and CRUD Routes)",
+        student: "Abhiram Thunikipati",
+        registrationNumber: "252U1R1244",
+        section: "CSE-2E",
+        college: "Aurora Deemed-to-be-University",
+        endpoints: {
+            getAllBooks: "GET /books/",
+            getSingleBook: "GET /books/:bookId/",
+            addBook: "POST /books/",
+            updateBook: "PUT /books/:bookId/",
+            deleteBook: "DELETE /books/:bookId/"
+        }
+    });
+});
+
+// ====================================================================
 // CRUD ROUTES
 // ====================================================================
 
